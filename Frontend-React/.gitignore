@@ -1,0 +1,9 @@
+# Node
+node_modules
+dist
+
+# Config
+.env
+
+# Global
+package-lock.json
