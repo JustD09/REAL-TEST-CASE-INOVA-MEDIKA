@@ -1,6 +1,6 @@
 <?php
 
-$projectRoot = dirname(__DIR__, 2);
+$projectRoot = dirname(__DIR__);
 $envFile = $projectRoot . DIRECTORY_SEPARATOR . '.env';
 
 if (class_exists(\Dotenv\Dotenv::class) && is_file($envFile)) {

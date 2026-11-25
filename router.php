@@ -2,14 +2,14 @@
 
 // Router for PHP built-in server to handle subdirectory entry scripts
 $requestUri = $_SERVER['REQUEST_URI'];
-$scriptFile = __DIR__ . '/Yii-SIMRS/api/index.php';
+$scriptFile = __DIR__ . '/api/index.php';
 
 // Parse the request URI
 $pathInfo = parse_url($requestUri, PHP_URL_PATH);
 
 // Set the correct script variables for the API entry point
-$_SERVER['SCRIPT_NAME'] = '/Yii-SIMRS/api/index.php';
-$_SERVER['PHP_SELF'] = '/Yii-SIMRS/api/index.php';
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['PHP_SELF'] = '/index.php';
 $_SERVER['SCRIPT_FILENAME'] = $scriptFile;
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
 

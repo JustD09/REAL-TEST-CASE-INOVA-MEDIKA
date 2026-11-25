@@ -95,11 +95,11 @@
     },
     "autoload": {
         "psr-4": {
-            "common\\": "Yii-SIMRS/common/",
-            "frontend\\": "Yii-SIMRS/frontend/",
-            "backend\\": "Yii-SIMRS/backend/",
-            "api\\": "Yii-SIMRS/api/",
-            "console\\": "Yii-SIMRS/console/"
+            "common\\": "common/",
+            "frontend\\": "frontend/",
+            "backend\\": "backend/",
+            "api\\": "api/",
+            "console\\": "console/"
         }
     }
 }
