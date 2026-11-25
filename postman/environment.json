@@ -1,0 +1,62 @@
+{
+  "id": "yii-simrs-test-env",
+  "name": "Yii-SIMRS Test Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "enabled": true
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "kunjunganId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "dokterId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "pemeriksaanId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "billingId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "resepId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "resepDetailId1",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "resepDetailId2",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "totalAmount",
+      "value": "",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

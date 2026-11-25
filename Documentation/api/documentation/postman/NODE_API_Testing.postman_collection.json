@@ -1,0 +1,275 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+    "name": "SIMRS API Testing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Collection for testing SIMRS API endpoints"
+  },
+  "item": [
+    {
+      "name": "Auth API",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"testpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "variables": [
+                {
+                  "key": "base_url",
+                  "value": "http://localhost:3001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"test_refresh_token\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh",
+              "variables": [
+                {
+                  "key": "base_url",
+                  "value": "http://localhost:3001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "variables": [
+                {
+                  "key": "base_url",
+                  "value": "http://localhost:3001"
+                },
+                {
+                  "key": "access_token",
+                  "value": "test_access_token"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Billing API",
+      "item": [
+        {
+          "name": "Create Billing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kunjunganId\": \"test-kunjungan-123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/billing",
+              "variables": [
+                {
+                  "key": "base_url",
+                  "value": "http://localhost:3001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Billing Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/billing/:kunjunganId",
+              "variables": [
+                {
+                  "key": "base_url",
+                  "value": "http://localhost:3001"
+                },
+                {
+                  "key": "kunjunganId",
+                  "value": "test-kunjungan-123"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billingId\": \"test-billing-123\",\n  \"amount\": 50000,\n  \"method\": \"transfer\",\n  \"idempotencyKey\": \"test-idempotency-key-123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/billing/payment",
+              "variables": [
+                {
+                  "key": "base_url",
+                  "value": "http://localhost:3001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refund Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"test-payment-123\",\n  \"amount\": 10000,\n  \"reason\": \"Refund reason\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/billing/refund",
+              "variables": [
+                {
+                  "key": "base_url",
+                  "value": "http://localhost:3001"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Lab API",
+      "item": [
+        {
+          "name": "Create Lab Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kunjunganId\": \"test-kunjungan-123\",\n  \"jenisPemeriksaanId\": \"test-jenis-123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/lab/order",
+              "variables": [
+                {
+                  "key": "base_url",
+                  "value": "http://localhost:3001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Lab Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"collected\",\n  \"result\": \"Normal result\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/lab/:id/status",
+              "variables": [
+                {
+                  "key": "base_url",
+                  "value": "http://localhost:3001"
+                },
+                {
+                  "key": "id",
+                  "value": "test-lab-order-123"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "test_access_token",
+      "type": "string"
+    }
+  ]
+}

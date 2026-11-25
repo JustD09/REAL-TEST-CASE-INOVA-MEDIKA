@@ -1,0 +1,8 @@
+# Node
+node_modules
+
+# GLobal
+package-lock.json
+
+# Config
+.env

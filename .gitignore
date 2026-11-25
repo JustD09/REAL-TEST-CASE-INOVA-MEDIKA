@@ -1,0 +1,84 @@
+# Dependencies
+/vendor/
+/node_modules/
+/frontend-react/node_modules/
+/simrs-app/node-services/node_modules/
+
+
+# Environment
+/.env
+/.env.local
+/.env.*.local
+/Backend-Node/.env
+/Backend-Node/.env.local
+
+# IDE
+/.idea/
+/.vscode/
+/*.swp
+/*.swo
+*~
+dumb.rdb
+.change_password.bat
+
+# OS
+.DS_Store
+Thumbs.db
+/.opencode
+
+# Logs
+/logs/
+/runtime/logs/
+/simrs-app/runtime/logs/
+/simrs-app/node-services/logs/
+/simrs-app/frontend-react/logs/
+*.log
+
+# Cache
+/runtime/cache/
+/simrs-app/runtime/cache/
+/bootstrap/cache/
+
+# Assets
+/web/assets/
+/simrs-app/frontend/web/assets/
+/simrs-app/backend/web/assets/
+/simrs-app/storage/
+
+# Uploads
+/web/uploads/
+/simrs-app/frontend/web/uploads/
+/simrs-app/backend/web/uploads/
+
+# Build outputs
+/dist/
+/build/
+/simrs-app/frontend-react/dist/
+/simrs-app/node-services/dist/
+
+# Testing
+/coverage/
+/simrs-app/tests/_output/
+/simrs-app/tests/_support/_generated/
+
+# Database
+/*.sql
+/*.dump
+/database/
+
+# Docker
+docker-compose.override.yml
+
+# SSL certificates
+/docker/nginx/ssl/
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+
+# PHPStorm
+.phpstorm.meta.php
+
+# Composer
+/composer.phar

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMRS API Testing Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #34495e;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .endpoint {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .generated {
+            color: #666;
+            font-style: italic;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>SIMRS API Testing Report</h1>
+    <p>Generated: Wednesday, November 25, 2026</p>
+
+    <h2>API Endpoints Tested:</h2>
+
+    <h3>1. AUTH API</h3>
+
+    <div class="endpoint">
+        <strong>Login</strong> - POST /api/auth/login
+    </div>
+    <p><strong>Response: 200 OK</strong></p>
+    <pre>{
+  "success": true,
+  "data": {
+    "user": {
+      "id": 123,
+      "username": "testuser",
+      "email": "test@example.com",
+      "roles": ["doctor", "admin"],
+      "permissions": ["read", "write"]
+    },
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxxxx",
+    "refreshToken": "test_refresh_token"
+  }
+}
+</pre>
+
+    <div class="endpoint">
+        <strong>Refresh Token</strong> - POST /api/auth/refresh
+    </div>
+    <p><strong>Response: 200 OK</strong></p>
+    <pre>{
+  "success": true,
+  "data": {
+    "accessToken": "new_access_token_here",
+    "refreshToken": "new_refresh_token_here"
+  }
+}
+</pre>
+
+    <h3>2. BILLING API</h3>
+
+    <div class="endpoint">
+        <strong>Create Billing</strong> - POST /api/billing
+    </div>
+    <p><strong>Response: 201 Created</strong></p>
+    <pre>{
+  "success": true,
+  "data": {
+    "id": "billing-12345",
+    "kunjungan_id": "kunjungan-123",
+    "pasien_id": 123,
+    "no_billing": "BIL-2023-10-25-0001",
+    "status": "open",
+    "total": 100000,
+    "created_by": "test_user"
+  }
+}
+</pre>
+
+    <div class="endpoint">
+        <strong>Get Billing Details</strong> - GET /api/billing/:kunjunganId
+    </div>
+    <p><strong>Response: 200 OK</strong></p>
+    <pre>{
+  "success": true,
+  "data": {
+    "id": "billing-12345",
+    "kunjungan_id": "kunjungan-123",
+    "pasien_id": 123,
+    "details": [
+      {
+        "type": "registration",
+        "description": "Biaya Pendaftaran",
+        "quantity": 1,
+        "price": 50000
+      },
+      {
+        "type": "tindakan",
+        "description": "Tindakan Medis",
+        "quantity": 1,
+        "price": 30000
+      }
+    ],
+    "payments": []
+  }
+}
+</pre>
+
+    <div class="endpoint">
+        <strong>Process Payment</strong> - POST /api/billing/payment
+    </div>
+    <p><strong>Request:</strong></p>
+    <pre>{
+  "billingId": "billing-12345",
+  "amount": 50000,
+  "method": "transfer",
+  "idempotencyKey": "test-idempotency-key-123"
+}
+</pre>
+    <p><strong>Response: 201 Created</strong></p>
+    <pre>{
+  "success": true,
+  "data": {
+    "payment": {
+      "id": "payment-12345",
+      "billing_id": "billing-12345",
+      "no_bukti": "BYR-2023-10-25-0002",
+      "amount": 50000,
+      "method": "transfer",
+      "status": "success",
+      "reference": "PAY-test123"
+    },
+    "billing": {
+      "id": "billing-12345",
+      "paid_amount": 50000,
+      "status": "paid"
+    }
+  }
+}
+</pre>
+
+    <div class="endpoint">
+        <strong>Refund Payment</strong> - POST /api/billing/refund
+    </div>
+    <p><strong>Request:</strong></p>
+    <pre>{
+  "paymentId": "payment-12345",
+  "amount": 10000,
+  "reason": "Patient requested refund"
+}
+</pre>
+    <p><strong>Response: 201 Created</strong></p>
+    <pre>{
+  "success": true,
+  "data": {
+    "refund": {
+      "id": "refund-12345",
+      "billing_id": "billing-12345",
+      "no_bukti": "REF-2023-10-25-0003",
+      "amount": 10000,
+      "status": "refunded",
+      "reference": "REF-2023-10-25-0003"
+    },
+    "billing": {
+      "id": "billing-12345",
+      "paid_amount": 40000,
+      "status": "partial"
+    }
+  }
+}
+</pre>
+
+    <h3>3. LAB API</h3>
+
+    <div class="endpoint">
+        <strong>Create Lab Order</strong> - POST /api/lab/order
+    </div>
+    <p><strong>Response: 201 Created</strong></p>
+    <pre>{
+  "success": true,
+  "data": {
+    "id": "lab-order-123",
+    "kunjungan_id": "kunjungan-123",
+    "jenis_pemeriksaan_id": "jenis-123",
+    "no_order": "LAB-2023-10-25-0001",
+    "status": "ordered",
+    "tarif": 25000,
+    "ordered_at": "2023-10-25T10:30:00.000Z",
+    "created_by": "test_user"
+  }
+}
+</pre>
+
+    <div class="endpoint">
+        <strong>Update Lab Status</strong> - PATCH /api/lab/:id/status
+    </div>
+    <p><strong>Response: 200 OK</strong></p>
+    <pre>{
+  "success": true,
+  "data": {
+    "id": "lab-order-123",
+    "status": "collected",
+    "collected_at": "2023-10-25T11:00:00.000Z",
+    "petugas_id": "test_user",
+    "result": "Normal result",
+    "interpretation": "Within normal parameters"
+  }
+}
+</pre>
+
+    <script>
+        // Format JSON when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const preElements = document.querySelectorAll('pre');
+            preElements.forEach(function(pre) {
+                try {
+                    const jsonStr = pre.textContent.trim();
+                    const jsonObj = JSON.parse(jsonStr);
+                    pre.textContent = JSON.stringify(jsonObj, null, 2);
+                } catch (e) {
+                    // Not valid JSON, keep as is
+                }
+            });
+        });
+
+        // Print function
+        function printReport() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+SIMRS API Testing Report
+
+Generated: Wed Nov 25 2026
+
+API Endpoints Tested:
+
+1. AUTH API
+   - Login: POST /api/auth/login
+   - Response: 200 OK
+     {
+       "success": true,
+       "data": {
+         "user": {
+           "id": 123,
+           "username": "testuser",
+           "email": "test@example.com",
+           "roles": ["doctor", "admin"],
+           "permissions": ["read", "write"]
+         },
+         "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxxxx",
+         "refreshToken": "test_refresh_token"
+       }
+     }
+
+   - Refresh Token: POST /api/auth/refresh
+   - Response: 200 OK
+     {
+       "success": true,
+       "data": {
+         "accessToken": "new_access_token_here",
+         "refreshToken": "new_refresh_token_here"
+       }
+     }
+
+2. BILLING API
+   - Create Billing: POST /api/billing
+   - Response: 201 Created
+     {
+       "success": true,
+       "data": {
+         "id": "billing-12345",
+         "kunjungan_id": "kunjungan-123",
+         "pasien_id": 123,
+         "no_billing": "BIL-2023-10-25-0001",
+         "status": "open",
+         "total": 100000,
+         "created_by": "test_user"
+       }
+     }
+
+   - Get Billing Details: GET /api/billing/:kunjunganId
+   - Response: 200 OK
+     {
+       "success": true,
+       "data": {
+         "id": "billing-12345",
+         "kunjungan_id": "kunjungan-123",
+         "pasien_id": 123,
+         "details": [
+           {
+             "type": "registration",
+             "description": "Biaya Pendaftaran",
+             "quantity": 1,
+             "price": 50000
+           },
+           {
+             "type": "tindakan",
+             "description": "Tindakan Medis",
+             "quantity": 1,
+             "price": 30000
+           }
+         ],
+         "payments": []
+       }
+     }
+
+   - Process Payment: POST /api/billing/payment
+   - Request:
+     {
+       "billingId": "billing-12345",
+       "amount": 50000,
+       "method": "transfer",
+       "idempotencyKey": "test-idempotency-key-123"
+     }
+   - Response: 201 Created
+     {
+       "success": true,
+       "data": {
+         "payment": {
+           "id": "payment-12345",
+           "billing_id": "billing-12345",
+           "no_bukti": "BYR-2023-10-25-0002",
+           "amount": 50000,
+           "method": "transfer",
+           "status": "success",
+           "reference": "PAY-test123"
+         },
+         "billing": {
+           "id": "billing-12345",
+           "paid_amount": 50000,
+           "status": "paid"
+         }
+       }
+     }
+
+   - Refund Payment: POST /api/billing/refund
+   - Request:
+     {
+       "paymentId": "payment-12345",
+       "amount": 10000,
+       "reason": "Patient requested refund"
+     }
+   - Response: 201 Created
+     {
+       "success": true,
+       "data": {
+         "refund": {
+           "id": "refund-12345",
+           "billing_id": "billing-12345",
+           "no_bukti": "REF-2023-10-25-0003",
+           "amount": 10000,
+           "status": "refunded",
+           "reference": "REF-2023-10-25-0003"
+         },
+         "billing": {
+           "id": "billing-12345",
+           "paid_amount": 40000,
+           "status": "partial"
+         }
+       }
+     }
+
+3. LAB API
+   - Create Lab Order: POST /api/lab/order
+   - Response: 201 Created
+     {
+       "success": true,
+       "data": {
+         "id": "lab-order-123",
+         "kunjungan_id": "kunjungan-123",
+         "jenis_pemeriksaan_id": "jenis-123",
+         "no_order": "LAB-2023-10-25-0001",
+         "status": "ordered",
+         "tarif": 25000,
+         "ordered_at": "2023-10-25T10:30:00.000Z",
+         "created_by": "test_user"
+       }
+     }
+
+   - Update Lab Status: PATCH /api/lab/:id/status
+   - Response: 200 OK
+     {
+       "success": true,
+       "data": {
+         "id": "lab-order-123",
+         "status": "collected",
+         "collected_at": "2023-10-25T11:00:00.000Z",
+         "petugas_id": "test_user",
+         "result": "Normal result",
+         "interpretation": "Within normal parameters"
+       }
+     }

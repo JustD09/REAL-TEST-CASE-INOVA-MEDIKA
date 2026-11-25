@@ -1,0 +1,918 @@
+{
+  "info": {
+    "_postman_id": "yii-simrs-api-tests",
+    "name": "Yii-SIMRS API Tests",
+    "description": "Postman collection for testing important transaction APIs: Pembayaran (Payment), Resep (Prescription), Pemeriksaan (Examination)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "user"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/site/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["site", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Has access token', function () {",
+                  "  const response = pm.response.json();",
+                  "  if (response.data?.token) {",
+                  "    pm.environment.set('authToken', response.data.token);",
+                  "  }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Pemeriksaan (Examination)",
+      "item": [
+        {
+          "name": "Create Examination",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kunjungan_id\": \"{{kunjunganId}}\",\n  \"dokter_id\": \"{{dokterId}}\",\n  \"anamnesis\": \"Postman test anamnesis\",\n  \"keluhan_utama\": \"Postman keluhan utama\",\n  \"riwayat_penyakit\": \"\",\n  \"riwayat_obat\": \"\",\n  \"riwayat_alergi\": \"\",\n  \"tekanan_darah\": \"120/80\",\n  \"nadi\": \"80\",\n  \"suhu\": \"36.5\",\n  \"respirasi\": \"16\",\n  \"saturasi\": \"98\",\n  \"berat_badan\": \"70\",\n  \"tinggi_badan\": \"175\",\n  \"pemeriksaan_fisik\": \"Postman test pemeriksaan fisik\",\n  \"catatan\": \"Postman test catatan\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pemeriksaan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pemeriksaan"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 Created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has examination data', function () {",
+                  "  const response = pm.response.json();",
+                  "  if (response.data?.id) {",
+                  "    pm.environment.set('pemeriksaanId', response.data.id);",
+                  "    pm.environment.set('kunjunganId', response.data.kunjungan_id);",
+                  "  }",
+                  "});",
+                  "",
+                  "pm.test('Response structure is valid', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('id');",
+                  "  pm.expect(response.data).to.have.property('status', 'in_progress');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "View Examination",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pemeriksaan/{{pemeriksaanId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pemeriksaan", "{{pemeriksaanId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response includes examination details', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('anamnesis');",
+                  "  pm.expect(response.data).to.have.property('keluhan_utama');",
+                  "  pm.expect(response.data).to.have.property('tekanan_darah');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Save Vital Signs",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tekanan_darah\": \"130/85\",\n  \"nadi\": \"85\",\n  \"suhu\": \"37.0\",\n  \"respirasi\": \"18\",\n  \"saturasi\": \"97\",\n  \"berat_badan\": \"71\",\n  \"tinggi_badan\": \"175\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pemeriksaan/{{pemeriksaanId}}/save-vital-signs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pemeriksaan", "{{pemeriksaanId}}", "save-vital-signs"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Vital signs updated', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('tekanan_darah', '130/85');",
+                  "  pm.expect(response.data).to.have.property('bmi');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Complete Examination",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnosa_utama_id\": 1,\n  \"diagnosa_sekunder_ids\": [1, 2]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pemeriksaan/complete/{{pemeriksaanId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pemeriksaan", "complete", "{{pemeriksaanId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Examination completed and billing created', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('pemeriksaan');",
+                  "  pm.expect(response.data.pemeriksaan).to.have.property('status', 'completed');",
+                  "  pm.expect(response.data).to.have.property('rekam_medis');",
+                  "  pm.environment.set('billingId', response.data.rekam_medis?.billing_id || '');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Resep (Prescription)",
+      "item": [
+        {
+          "name": "Create Prescription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kunjungan_id\": \"{{kunjunganId}}\",\n  \"dokter_id\": \"{{dokterId}}\",\n  \"pemeriksaan_id\": \"{{pemeriksaanId}}\",\n  \"catatan\": \"Postman test prescription\",\n  \"details\": [\n    {\n      \"obat_id\": 1,\n      \"qty\": 10,\n      \"harga\": 5000,\n      \"aturan_pakai\": \"1 tablet 3x sehari\",\n      \"jumlah_hari\": 5,\n      \"catatan\": \"Makan sebelum makan\"\n    },\n    {\n      \"obat_id\": 2,\n      \"qty\": 5,\n      \"harga\": 10000,\n      \"aturan_pakai\": \"2 tablet 2x sehari\",\n      \"jumlah_hari\": 3,\n      \"catatan\": \"Makan setelah makan\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/resep",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "resep"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 Created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has prescription data', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('id');",
+                  "  pm.environment.set('resepId', response.data.id);",
+                  "  pm.environment.set('totalAmount', response.data.total);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "View Prescription",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/resep/{{resepId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "resep", "{{resepId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Prescription includes details', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('resepDetail');",
+                  "  pm.expect(response.data.resepDetail).to.be.an('array').that.is.not.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Submit Prescription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/resep/submit/{{resepId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "resep", "submit", "{{resepId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Prescription submitted', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('status', 'submitted');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dispense Prescription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"details\": [\n    {\n      \"detail_id\": \"{{resepDetailId1}}\",\n      \"dispensed_qty\": 5\n    },\n    {\n      \"detail_id\": \"{{resepDetailId2}}\",\n      \"dispensed_qty\": 3\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/resep/dispense/{{resepId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "resep", "dispense", "{{resepId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Prescription partially dispensed', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('status');",
+                  "  pm.expect(['dispensed', 'partial']).to.include(response.data.status);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Pembayaran (Payment)",
+      "item": [
+        {
+          "name": "Process Payment (Cash)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-payment-{{$timestamp}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billing_id\": \"{{billingId}}\",\n  \"amount\": 50000,\n  \"method\": \"cash\",\n  \"reference\": \"INV/{{billingId}}/{{$timestamp}}\",\n  \"notes\": \"Postman test payment cash\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pembayaran",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pembayaran"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200/201', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "pm.test('Payment processed successfully', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('id');",
+                  "  pm.expect(response.data).to.have.property('status', 'success');",
+                  "  pm.environment.set('paymentId', response.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Process Payment (Transfer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-payment-transfer-{{$timestamp}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billing_id\": \"{{billingId}}\",\n  \"amount\": 100000,\n  \"method\": \"transfer\",\n  \"reference\": \"TRX/{{billingId}}/{{$timestamp}}\",\n  \"notes\": \"Postman test payment transfer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pembayaran",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pembayaran"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200/201', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "pm.test('Payment processed with transfer method', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('method', 'transfer');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "View Payment by Billing",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pembayaran/by-billing/{{billingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pembayaran", "by-billing", "{{billingId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns payment list', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('data');",
+                  "  pm.expect(response.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refund Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Postman test refund\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pembayaran/refund/{{paymentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pembayaran", "refund", "{{paymentId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Payment refunded', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('status', 'refunded');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Void Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Postman test void\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pembayaran/void/{{paymentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pembayaran", "void", "{{paymentId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Payment voided', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', true);",
+                  "  pm.expect(response.data).to.have.property('status', 'voided');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Negative Test - Payment Exceeds Outstanding",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billing_id\": \"{{billingId}}\",\n  \"amount\": 999999999,\n  \"method\": \"cash\",\n  \"reference\": \"INV/{{billingId}}/{{$timestamp}}\",\n  \"notes\": \"Test exceed outstanding\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pembayaran",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pembayaran"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message indicates exceed outstanding', function () {",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('success', false);",
+                  "  pm.expect(response.message).to.include('lebihi sisa tagihan');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Negative Test - Duplicate Reference",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "duplicate-test-key"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billing_id\": \"{{billingId}}\",\n  \"amount\": 10000,\n  \"method\": \"cash\",\n  \"reference\": \"DUPLICATE-REF-123\",\n  \"notes\": \"First attempt\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pembayaran",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pembayaran"]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('First request succeeds', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Duplicate Reference - Second Attempt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "duplicate-test-key"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billing_id\": \"{{billingId}}\",\n  \"amount\": 10000,\n  \"method\": \"cash\",\n  \"reference\": \"DUPLICATE-REF-123\",\n  \"notes\": \"Second attempt\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pembayaran",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pembayaran"]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Second request returns duplicate', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response).to.have.property('duplicate', true);",
+                  "  pm.expect(response.message).to.include('duplikat');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "",
+          "const baseUrl = pm.environment.get('baseUrl') || 'http://localhost:8080';",
+          "pm.variables.set('baseUrl', baseUrl);",
+          "",
+          "// Generate test kunjungan ID if not exists",
+          "if (!pm.environment.get('kunjunganId')) {",
+          "  pm.variables.set('kunjunganId', 'test-kunjungan-' + Date.now());",
+          "}",
+          "",
+          "// Generate test dokter ID if not exists",
+          "if (!pm.environment.get('dokterId')) {",
+          "  pm.variables.set('dokterId', 'test-dokter-' + Date.now());",
+          "}",
+          ""
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "kunjunganId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "dokterId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pemeriksaanId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "billingId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "resepId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "resepDetailId1",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "resepDetailId2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "totalAmount",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

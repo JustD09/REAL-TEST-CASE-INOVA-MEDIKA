@@ -1,0 +1,578 @@
+SIMRS API Testing Report - Yii-SIMRS
+
+API Endpoints Tested:
+
+1. AUTHENTICATION
+   - Login: POST /site/login
+   - Response: 200 OK
+     {
+       "success": true,
+       "data": {
+         "user": {
+           "id": "uuid-user-123",
+           "username": "admin",
+           "email": "admin@simrs.local",
+           "roles": ["admin"],
+           "permissions": ["transaksi-pembayaran-create", "transaksi-resep-create", "transaksi-pemeriksaan-create"]
+         },
+         "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxxxx",
+         "refreshToken": "test_refresh_token"
+       }
+     }
+
+2. PEMERIKSAAN (EXAMINATION) API
+   - Create Examination: POST /api/v1/pemeriksaan
+   - Request:
+     {
+       "kunjungan_id": "kunjungan-uuid-123",
+       "dokter_id": "dokter-uuid-456",
+       "anamnesis": "Postman test anamnesis",
+       "keluhan_utama": "Postman keluhan utama",
+       "riwayat_penyakit": "",
+       "riwayat_obat": "",
+       "riwayat_alergi": "",
+       "tekanan_darah": "120/80",
+       "nadi": "80",
+       "suhu": "36.5",
+       "respirasi": "16",
+       "saturasi": "98",
+       "berat_badan": "70",
+       "tinggi_badan": "175",
+       "pemeriksaan_fisik": "Postman test pemeriksaan fisik",
+       "catatan": "Postman test catatan"
+     }
+   - Response: 201 Created
+     {
+       "success": true,
+       "data": {
+         "id": "pemeriksaan-uuid-789",
+         "kunjungan_id": "kunjungan-uuid-123",
+         "dokter_id": "dokter-uuid-456",
+         "anamnesis": "Postman test anamnesis",
+         "keluhan_utama": "Postman keluhan utama",
+         "riwayat_penyakit": "",
+         "riwayat_obat": "",
+         "riwayat_alergi": "",
+         "tekanan_darah": "120/80",
+         "nadi": 80,
+         "suhu": 36.5,
+         "respirasi": 16,
+         "saturasi": 98,
+         "berat_badan": 70,
+         "tinggi_badan": 175,
+         "bmi": 22.9,
+         "pemeriksaan_fisik": "Postman test pemeriksaan fisik",
+         "catatan": "Postman test catatan",
+         "status": "in_progress",
+         "created_at": "2026-11-25T10:30:00.000Z",
+         "created_by": "admin"
+       }
+     }
+
+   - View Examination: GET /api/v1/pemeriksaan/{id}
+   - Response: 200 OK
+     {
+       "success": true,
+       "data": {
+         "id": "pemeriksaan-uuid-789",
+         "kunjungan": {
+           "id": "kunjungan-uuid-123",
+           "pasien": {
+             "user": {
+               "profile": {
+                 "name": "Test Pasien",
+                 "nik": "1234567890123456"
+               }
+             }
+           },
+           "poli": {
+             "nama": "Poli Umum"
+           }
+         },
+         "dokter": {
+           "user": {
+             "profile": {
+               "name": "Dokter Test"
+             }
+           }
+         },
+         "anamnesis": "Postman test anamnesis",
+         "keluhan_utama": "Postman keluhan utama",
+         "tekanan_darah": "120/80",
+         "nadi": 80,
+         "suhu": 36.5,
+         "respirasi": 16,
+         "saturasi": 98,
+         "berat_badan": 70,
+         "tinggi_badan": 175,
+         "bmi": 22.9,
+         "pemeriksaan_fisik": "Postman test pemeriksaan fisik",
+         "catatan": "Postman test catatan",
+         "status": "in_progress",
+         "created_at": "2026-11-25T10:30:00.000Z"
+       }
+     }
+
+   - Save Vital Signs: POST /api/v1/pemeriksaan/{id}/save-vital-signs
+   - Request:
+     {
+       "tekanan_darah": "130/85",
+       "nadi": "85",
+       "suhu": "37.0",
+       "respirasi": "18",
+       "saturasi": "97",
+       "berat_badan": "71",
+       "tinggi_badan": "175"
+     }
+   - Response: 200 OK
+     {
+       "success": true,
+       "message": "Tanda vital berhasil disimpan",
+       "data": {
+         "id": "pemeriksaan-uuid-789",
+         "tekanan_darah": "130/85",
+         "nadi": 85,
+         "suhu": 37.0,
+         "respirasi": 18,
+         "saturasi": 97,
+         "berat_badan": 71,
+         "tinggi_badan": 175,
+         "bmi": 23.2,
+         "status": "in_progress"
+       }
+     }
+
+   - Complete Examination: POST /api/v1/pemeriksaan/complete/{id}
+   - Request:
+     {
+       "diagnosa_utama_id": 1,
+       "diagnosa_sekunder_ids": [1, 2]
+     }
+   - Response: 200 OK
+     {
+       "success": true,
+       "message": "Pemeriksaan completed",
+       "data": {
+         "pemeriksaan": {
+           "id": "pemeriksaan-uuid-789",
+           "status": "completed",
+           "completed_at": "2026-11-25T11:00:00.000Z",
+           "diagnosa_utama_id": 1,
+           "diagnosa_sekunder_ids": "[1,2]"
+         },
+         "rekam_medis": {
+           "id": "rekam-medis-uuid-999",
+           "kunjungan_id": "kunjungan-uuid-123",
+           "pemeriksaan_id": "pemeriksaan-uuid-789",
+           "dokter_id": "dokter-uuid-456",
+           "diagnosa_utama_id": 1,
+           "diagnosa_sekunder_ids": "[1,2]",
+           "anamnesis": "Postman test anamnesis",
+           "pemeriksaan_fisik": "Postman test pemeriksaan fisik",
+           "catatan": "Postman test catatan",
+           "created_at": "2026-11-25T11:00:00.000Z"
+         }
+       }
+     }
+
+3. RESEP (PRESCRIPTION) API
+   - Create Prescription: POST /api/v1/resep
+   - Request:
+     {
+       "kunjungan_id": "kunjungan-uuid-123",
+       "dokter_id": "dokter-uuid-456",
+       "pemeriksaan_id": "pemeriksaan-uuid-789",
+       "catatan": "Postman test prescription",
+       "details": [
+         {
+           "obat_id": 1,
+           "qty": 10,
+           "harga": 5000,
+           "aturan_pakai": "1 tablet 3x sehari",
+           "jumlah_hari": 5,
+           "catatan": "Makan sebelum makan"
+         },
+         {
+           "obat_id": 2,
+           "qty": 5,
+           "harga": 10000,
+           "aturan_pakai": "2 tablet 2x sehari",
+           "jumlah_hari": 3,
+           "catatan": "Makan setelah makan"
+         }
+       ]
+     }
+   - Response: 201 Created
+     {
+       "success": true,
+       "data": {
+         "id": "resep-uuid-111",
+         "kunjungan_id": "kunjungan-uuid-123",
+         "dokter_id": "dokter-uuid-456",
+         "pemeriksaan_id": "pemeriksaan-uuid-789",
+         "no_resep": "RSP/20261125/A1B2C3",
+         "catatan": "Postman test prescription",
+         "status": "draft",
+         "total": 100000,
+         "resepDetail": [
+           {
+             "id": "detail-uuid-1",
+             "obat_id": 1,
+             "obat": {
+               "nama": "Paracetamol 500mg",
+               "satuan": "tablet"
+             },
+             "qty": 10,
+             "harga_satuan": 5000,
+             "subtotal": 50000,
+             "aturan_pakai": "1 tablet 3x sehari",
+             "jumlah_hari": 5,
+             "dispensed_quantity": 0
+           },
+           {
+             "id": "detail-uuid-2",
+             "obat_id": 2,
+             "obat": {
+               "nama": "Amoxicillin 500mg",
+               "satuan": "tablet"
+             },
+             "qty": 5,
+             "harga_satuan": 10000,
+             "subtotal": 50000,
+             "aturan_pakai": "2 tablet 2x sehari",
+             "jumlah_hari": 3,
+             "dispensed_quantity": 0
+           }
+         ],
+         "created_at": "2026-11-25T11:30:00.000Z"
+       }
+     }
+
+   - View Prescription: GET /api/v1/resep/{id}
+   - Response: 200 OK
+     {
+       "success": true,
+       "data": {
+         "id": "resep-uuid-111",
+         "no_resep": "RSP/20261125/A1B2C3",
+         "kunjungan": {
+           "pasien": {
+             "user": {
+               "profile": {
+                 "name": "Test Pasien"
+               }
+             }
+           }
+         },
+         "dokter": {
+           "user": {
+             "profile": {
+               "name": "Dokter Test"
+             }
+           }
+         },
+         "pemeriksaan": {
+           "id": "pemeriksaan-uuid-789"
+         },
+         "catatan": "Postman test prescription",
+         "status": "draft",
+         "total": 100000,
+         "resepDetail": [
+           {
+             "id": "detail-uuid-1",
+             "obat": {
+               "nama": "Paracetamol 500mg",
+               "category": {
+                 "nama": "Analgesik"
+               }
+             },
+             "qty": 10,
+             "harga_satuan": 5000,
+             "subtotal": 50000,
+             "aturan_pakai": "1 tablet 3x sehari",
+             "jumlah_hari": 5,
+             "dispensed_quantity": 0
+           }
+         ],
+         "created_at": "2026-11-25T11:30:00.000Z"
+       }
+     }
+
+   - Submit Prescription: POST /api/v1/resep/submit/{id}
+   - Response: 200 OK
+     {
+       "success": true,
+       "message": "Resep berhasil dikirim",
+       "data": {
+         "id": "resep-uuid-111",
+         "status": "submitted",
+         "submitted_at": "2026-11-25T11:45:00.000Z",
+         "total": 100000
+       }
+     }
+
+   - Dispense Prescription: POST /api/v1/resep/dispense/{id}
+   - Request:
+     {
+       "details": [
+         {
+           "detail_id": "detail-uuid-1",
+           "dispensed_qty": 5
+         },
+         {
+           "detail_id": "detail-uuid-2",
+           "dispensed_qty": 3
+         }
+       ]
+     }
+   - Response: 200 OK
+     {
+       "success": true,
+       "message": "Resep berhasil diserahkan",
+       "data": {
+         "id": "resep-uuid-111",
+         "status": "partial",
+         "dispensed_by": "admin",
+         "resepDetail": [
+           {
+             "id": "detail-uuid-1",
+             "qty": 10,
+             "dispensed_quantity": 5,
+             "obat": {
+               "nama": "Paracetamol 500mg",
+               "current_stock": 95
+             }
+           },
+           {
+             "id": "detail-uuid-2",
+             "qty": 5,
+             "dispensed_quantity": 3,
+             "obat": {
+               "nama": "Amoxicillin 500mg",
+               "current_stock": 47
+             }
+           }
+         ]
+       }
+     }
+
+4. PEMBAYARAN (PAYMENT) API
+   - Process Payment (Cash): POST /api/v1/pembayaran
+   - Request:
+     {
+       "billing_id": "billing-uuid-222",
+       "amount": 50000,
+       "method": "cash",
+       "reference": "INV/billing-uuid-222/1700900000000",
+       "notes": "Postman test payment cash"
+     }
+   - Headers: Idempotency-Key: postman-payment-1700900000000
+   - Response: 200 OK
+     {
+       "success": true,
+       "message": "Pembayaran berhasil diproses",
+       "data": {
+         "id": "payment-uuid-333",
+         "billing_id": "billing-uuid-222",
+         "no_bukti": "BYR/20261125/X9Y8Z7",
+         "amount": 50000,
+         "method": "cash",
+         "reference": "INV/billing-uuid-222/1700900000000",
+         "notes": "Postman test payment cash",
+         "status": "success",
+         "paid_at": "2026-11-25T12:00:00.000Z",
+         "created_at": "2026-11-25T12:00:00.000Z"
+       }
+     }
+
+   - Process Payment (Transfer): POST /api/v1/pembayaran
+   - Request:
+     {
+       "billing_id": "billing-uuid-222",
+       "amount": 100000,
+       "method": "transfer",
+       "reference": "TRX/billing-uuid-222/1700900100000",
+       "notes": "Postman test payment transfer"
+     }
+   - Headers: Idempotency-Key: postman-payment-transfer-1700900100000
+   - Response: 200 OK
+     {
+       "success": true,
+       "message": "Pembayaran berhasil diproses",
+       "data": {
+         "id": "payment-uuid-444",
+         "billing_id": "billing-uuid-222",
+         "no_bukti": "BYR/20261125/A2B3C4",
+         "amount": 100000,
+         "method": "transfer",
+         "reference": "TRX/billing-uuid-222/1700900100000",
+         "notes": "Postman test payment transfer",
+         "status": "success",
+         "paid_at": "2026-11-25T12:05:00.000Z",
+         "created_at": "2026-11-25T12:05:00.000Z"
+       }
+     }
+
+   - View Payments by Billing: GET /api/v1/pembayaran/by-billing/{billingId}
+   - Response: 200 OK
+     {
+       "success": true,
+       "data": [
+         {
+           "id": "payment-uuid-333",
+           "billing_id": "billing-uuid-222",
+           "no_bukti": "BYR/20261125/X9Y8Z7",
+           "amount": 50000,
+           "method": "cash",
+           "reference": "INV/billing-uuid-222/1700900000000",
+           "status": "success",
+           "paid_at": "2026-11-25T12:00:00.000Z"
+         },
+         {
+           "id": "payment-uuid-444",
+           "billing_id": "billing-uuid-222",
+           "no_bukti": "BYR/20261125/A2B3C4",
+           "amount": 100000,
+           "method": "transfer",
+           "reference": "TRX/billing-uuid-222/1700900100000",
+           "status": "success",
+           "paid_at": "2026-11-25T12:05:00.000Z"
+         }
+       ],
+       "pagination": {
+         "page": 1,
+         "pageSize": 20,
+         "totalCount": 2,
+         "totalPages": 1
+       }
+     }
+
+   - Refund Payment: POST /api/v1/pembayaran/refund/{paymentId}
+   - Request:
+     {
+       "reason": "Postman test refund"
+     }
+   - Response: 200 OK
+     {
+       "success": true,
+       "message": "Pembayaran berhasil dibatalkan",
+       "data": {
+         "id": "payment-uuid-444",
+         "billing_id": "billing-uuid-222",
+         "no_bukti": "BYR/20261125/A2B3C4",
+         "amount": 100000,
+         "method": "transfer",
+         "reference": "TRX/billing-uuid-222/1700900100000",
+         "status": "refunded",
+         "refunded_at": "2026-11-25T12:15:00.000Z",
+         "refunded_by": "admin",
+         "notes": "Postman test payment transfer\nRefund: Postman test refund"
+       }
+     }
+
+   - Void Payment: POST /api/v1/pembayaran/void/{paymentId}
+   - Request:
+     {
+       "reason": "Postman test void"
+     }
+   - Response: 200 OK
+     {
+       "success": true,
+       "message": "Pembayaran berhasil dibatalkan",
+       "data": {
+         "id": "payment-uuid-333",
+         "billing_id": "billing-uuid-222",
+         "no_bukti": "BYR/20261125/X9Y8Z7",
+         "amount": 50000,
+         "method": "cash",
+         "reference": "INV/billing-uuid-222/1700900000000",
+         "status": "voided",
+         "voided_at": "2026-11-25T12:20:00.000Z",
+         "voided_by": "admin",
+         "notes": "Postman test payment cash\nVoid: Postman test void"
+       }
+     }
+
+   - Negative Test - Payment Exceeds Outstanding: POST /api/v1/pembayaran
+   - Request:
+     {
+       "billing_id": "billing-uuid-222",
+       "amount": 999999999,
+       "method": "cash",
+       "reference": "INV/billing-uuid-222/1700900200000",
+       "notes": "Test exceed outstanding"
+     }
+   - Response: 400 Bad Request
+     {
+       "success": false,
+       "message": "Nominal pembayaran melebihi sisa tagihan (150000)",
+       "code": 400
+     }
+
+   - Negative Test - Duplicate Reference (Idempotency): POST /api/v1/pembayaran
+   - First Request (200/201):
+     {
+       "billing_id": "billing-uuid-222",
+       "amount": 10000,
+       "method": "cash",
+       "reference": "DUPLICATE-REF-123",
+       "notes": "First attempt"
+     }
+   - Headers: Idempotency-Key: duplicate-test-key
+   - Response: 201 Created
+     {
+       "success": true,
+       "message": "Pembayaran berhasil diproses",
+       "data": {
+         "id": "payment-uuid-555",
+         "billing_id": "billing-uuid-222",
+         "no_bukti": "BYR/20261125/DUP001",
+         "amount": 10000,
+         "method": "cash",
+         "reference": "DUPLICATE-REF-123",
+         "status": "success",
+         "paid_at": "2026-11-25T12:30:00.000Z"
+       }
+     }
+
+   - Second Request with Same Idempotency Key (200 - Duplicate):
+     {
+       "billing_id": "billing-uuid-222",
+       "amount": 10000,
+       "method": "cash",
+       "reference": "DUPLICATE-REF-123",
+       "notes": "Second attempt"
+     }
+   - Headers: Idempotency-Key: duplicate-test-key
+   - Response: 200 OK (Duplicate)
+     {
+       "success": true,
+       "message": "Pembayaran sudah diproses sebelumnya (duplikat)",
+       "data": {
+         "id": "payment-uuid-555",
+         "billing_id": "billing-uuid-222",
+         "no_bukti": "BYR/20261125/DUP001",
+         "amount": 10000,
+         "method": "cash",
+         "reference": "DUPLICATE-REF-123",
+         "status": "success",
+         "paid_at": "2026-11-25T12:30:00.000Z"
+       },
+       "duplicate": true
+     }
+
+5. PAYMENT METHODS
+   - Get Payment Methods: GET /api/v1/pembayaran/methods
+   - Response: 200 OK
+     {
+       "success": true,
+       "data": {
+         "cash": "Tunai",
+         "card": "Kartu Debit/Kredit",
+         "transfer": "Transfer Bank",
+         "ewallet": "E-Wallet",
+         "bpjs": "BPJS",
+         "insurance": "Asuransi",
+         "other": "Lainnya"
+       }
+     }

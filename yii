@@ -1,0 +1,27 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Yii console bootstrap file.
+ *
+ * @link https://www.yiiframework.com/
+ * @copyright Copyright (c) 2008 Yii Software LLC
+ * @license https://www.yiiframework.com/license/
+ */
+
+defined('YII_DEBUG') or define('YII_DEBUG', true);
+defined('YII_ENV') or define('YII_ENV', 'dev');
+
+require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/vendor/yiisoft/yii2/Yii.php';
+
+$config = require __DIR__ . '/Yii-SIMRS/console/config/main.php';
+Yii::setAlias('@app', __DIR__ . '/Yii-SIMRS');
+Yii::setAlias('@console', __DIR__ . '/Yii-SIMRS/console');
+Yii::setAlias('@common', __DIR__ . '/Yii-SIMRS/common');
+Yii::setAlias('@frontend', __DIR__ . '/Yii-SIMRS/frontend');
+Yii::setAlias('@backend', __DIR__ . '/Yii-SIMRS/backend');
+Yii::setAlias('@api', __DIR__ . '/Yii-SIMRS/api');
+
+$application = new yii\console\Application($config);
+$exitCode = $application->run();
+exit($exitCode);

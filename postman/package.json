@@ -1,0 +1,18 @@
+{
+  "name": "yii-simrs-postman-tests",
+  "version": "1.0.0",
+  "description": "Postman API test runner for Yii-SIMRS with PDF report generation",
+  "main": "run-tests.js",
+  "scripts": {
+    "test": "node run-tests.js",
+    "test:ci": "node run-tests.js --bail"
+  },
+  "dependencies": {
+    "newman": "^6.1.2",
+    "pdf-lib": "^1.17.1"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

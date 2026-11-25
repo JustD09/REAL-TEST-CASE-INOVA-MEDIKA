@@ -1,0 +1,195 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: simrs-postgres
+    environment:
+      POSTGRES_DB: simrs_db
+      POSTGRES_USER: simrs_user
+      POSTGRES_PASSWORD: simrs_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    command:
+      - -c
+      - max_connections=200
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - effective_cache_size=1GB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - checkpoint_completion_target=0.9
+      - -c
+      - wal_buffers=16MB
+      - -c
+      - default_statistics_target=100
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - effective_io_concurrency=200
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U simrs_user -d simrs_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - simrs-network
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: simrs-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - simrs-network
+
+  # PHP-FPM for Yii2
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: simrs-php
+    environment:
+      APP_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: simrs_db
+      DB_USER: simrs_user
+      DB_PASSWORD: simrs_pass
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - ./simrs-app:/var/www/html
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - simrs-network
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: simrs-nginx
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./simrs-app:/var/www/html
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - php
+    networks:
+      - simrs-network
+
+  # Node.js Backend Services
+  node-services:
+    build:
+      context: ./Backend-Node
+      dockerfile: Dockerfile
+    container_name: simrs-node
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: simrs_db
+      DB_USER: simrs_user
+      DB_PASSWORD: simrs_pass
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: simrs-super-secret-jwt-key-change-in-production
+      CORS_ORIGIN: http://localhost:3000
+      BPJS_BASE_URL: https://api.bpjs-kesehatan.go.id
+      BPJS_CONS_ID: ""
+      BPJS_SECRET: ""
+      SATUSEHAT_BASE_URL: https://api.satusehat.kemkes.go.id
+      SATUSEHAT_CLIENT_ID: ""
+      SATUSEHAT_CLIENT_SECRET: ""
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./Backend-Node:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - simrs-network
+
+  # React Frontend (Vite Dev Server)
+  frontend:
+    build:
+      context: ./Frontend-React
+      dockerfile: Dockerfile
+    container_name: simrs-frontend
+    environment:
+      VITE_API_URL: http://localhost:8080/api
+      VITE_NODE_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./Frontend-React:/app
+      - /app/node_modules
+    depends_on:
+      - nginx
+      - node-services
+    networks:
+      - simrs-network
+
+  # pgAdmin (optional)
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: simrs-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@simrs.local
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "8081:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - simrs-network
+
+  # Mailhog for email testing
+  mailhog:
+    image: mailhog/mailhog
+    container_name: simrs-mailhog
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    networks:
+      - simrs-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  pgadmin_data:
+
+networks:
+  simrs-network:
+    driver: bridge
